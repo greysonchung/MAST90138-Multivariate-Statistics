@@ -66,12 +66,12 @@ Gamma <- matrix(c(-2*sqrt(1/5), sqrt(1/5), sqrt(1/5), 2*sqrt(1/5)), 2, 2)
 ### Question 1c
 ```{r}
 X <- read.csv("Wheat data.txt", sep = "", header = F)
-# printing dimension
-dim(X)
 # printing wheat variety vector
 (wheat_variety <- X[, 8])
-# printing the first five rows of data matrix X
-(X <- as.matrix(X[, c(1,2,3,4,5,6,7)]))
+# printing the data matrix X
+(X <- as.matrix(X[, -c(8)]))
+# printing the dimension of X
+dim(X)
 ```
 
 ### Question 1d
