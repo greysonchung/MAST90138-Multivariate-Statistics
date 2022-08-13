@@ -1,0 +1,133 @@
+---
+title: "MAST90138 Assignment 1"
+author: "Haonan Zhong"
+date: '2022-07-26'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Question 1a
+
+For the matrix $\Sigma$ to be a covariance matrix, $\Sigma$ needs to be positive semi-definite and symmetric. In order for $\Sigma$ to be a symmetric matrix, therefore $\mathit{a}$ must be equals to 2. Since a symmetric matrix is positive semi-definite if and only if its eigenvalues $\lambda$ are non-negative, hence we need to identify values of $\mathit{b}$ that make $\Sigma$ a positive semi-definite matrix.
+
+Given that $$ |A-\lambda{I_p}| = |\begin{bmatrix} 1&2 \\ 2&b \\ \end{bmatrix} - \begin{bmatrix} \lambda&0 \\ 0&\lambda \\ \end{bmatrix}| = |\begin{bmatrix} 1-\lambda&2 \\ 2&b-\lambda \\ \end{bmatrix}| = {\lambda^2 - (b+1)\lambda + (b-4)} = 0$$
+
+As stated above, eigenvalues of a positive semi-definite matrix are non-negative, thus, the root of the above quadratic equation must be non-negative, which results in the following two inequation.
+\begin{align}\tag{1} (b+1) - \sqrt{(b+1)^2-4\times(b-4)} \geqslant 0\\
+\tag{2} (b+1) + \sqrt{(b+1)^2-4\times(b-4)} \geqslant 0 \end{align}
+
+Solving $(1)$ we have,
+\begin{align}\begin{split} b+1 \geqslant \sqrt{(b+1)^2-4\times(b-4)} \nonumber\\
+b^2+2b+1 \geqslant b^2+2b+1-4b+16 \nonumber\\
+4b \geqslant 16 \nonumber\\
+\therefore b \geqslant 4 \nonumber\end{split}\end{align}
+
+Finally, solving $(2)$ we also have
+$$\sqrt{(b+1)^2-4\times(b-4)} \geqslant -(b+1)$$
+Since if $\sqrt{f(x)} \geqslant g(x)$, then $g(x) < 0$ or $g(x) \geqslant 0$. Thus, for $-(b+1) < 0$, we have
+$$b > -1$$
+and for $-(b+1) \geqslant 0$, we have
+$$b \leqslant -1$$
+Combining the range of $b$ in both inequation $(1)$ and $(2)$, we know that $b \geqslant 4$. Therefore, $\Sigma$ is a covariance matrix when $a=2$ and $b\geqslant 4$.
+
+### Question 1b
+Given eigenvalues satisfy the following equation,
+$$|\Sigma-\lambda I| = |\begin{bmatrix} 13&-4 \\ -4&7 \\ \end{bmatrix} - \begin{bmatrix} \lambda&0 \\ 0&\lambda \\ \end{bmatrix}| = |\begin{bmatrix} 13-\lambda&-4 \\ -4&7-\lambda \\ \end{bmatrix}|=0$$
+Therefore, we have $(13-\lambda)(7-\lambda)-16 = 0$
+$$\therefore \lambda^2 - 20\lambda+75=0 $$
+$$(\lambda-5)(\lambda-15)=0 $$
+$$\therefore \lambda_1 = 5, \; \lambda_2 = 15$$
+Thus, the eigenvalues of $\Sigma$ is 5 and 15, respectively. Next, we will compute the corresponding othonormal eigenvectors.
+
+When $\lambda = 15$,
+$$(\Sigma - 5I) \times v_1 = (\begin{bmatrix} 13&-4 \\ -4&7 \\ \end{bmatrix} - \begin{bmatrix} 15&0 \\ 0&15 \\ \end{bmatrix}) \times v_1 = 0 $$
+$$\begin{bmatrix} -2&-4 \\ -4&-8 \\ \end{bmatrix} \times \begin{bmatrix} v_{11} \\ v_{12} \\ \end{bmatrix} =0$$
+Given that we are finding the orthonormal eigenvectors, we solve the above equation subject to $\sqrt{v_{11}^2+v_{12}^2} = 1$. Thus, the corresponding eigenvectors of $\lambda = 5$ is,
+$$v_1 = \begin{bmatrix} -2\sqrt{\frac{1}{5}}\\ \sqrt{\frac{1}{5}} \\ \end{bmatrix} \; or \; \begin{bmatrix} 2\sqrt{\frac{1}{5}}\\ -\sqrt{\frac{1}{5}} \\ \end{bmatrix}$$
+
+When $\lambda = 5$,
+$$(\Sigma - 5I) \times v_2 = (\begin{bmatrix} 13&-4 \\ -4&7 \\ \end{bmatrix} - \begin{bmatrix} 5&0 \\ 0&5 \\ \end{bmatrix}) \times v_2 = 0 $$
+$$\begin{bmatrix} 8&-4 \\ -4&2 \\ \end{bmatrix} \times \begin{bmatrix} v_{21} \\ v_{22} \\ \end{bmatrix} =0$$
+Given that we are finding the orthonormal eigenvectors, we solve the above equation subject to $\sqrt{v_{21}^2+v_{22}^2} = 1$. Thus, the corresponding eigenvectors of $\lambda = 5$ is,
+$$v_2 = \begin{bmatrix} \sqrt{\frac{1}{5}}\\ 2\sqrt{\frac{1}{5}} \\ \end{bmatrix} \; or \; v_2 = \begin{bmatrix} -\sqrt{\frac{1}{5}}\\ -2\sqrt{\frac{1}{5}} \\ \end{bmatrix}$$
+
+Given $\Gamma$ is a matrix composes of eigenvectors of norm 1 and orthogonal to each other, and $\Lambda$ is a diagonal matrix with the corresponding eigenvalues. Therefore $$\Gamma = \begin{bmatrix} -2\sqrt{\frac{1}{5}}&&\sqrt{\frac{1}{5}}\\ \sqrt{\frac{1}{5}}&&2\sqrt{\frac{1}{5}} \\ \end{bmatrix} \;and\; \Lambda = \begin{bmatrix} 15&&0\\ 0&&5 \\ \end{bmatrix}$$
+
+Verifying that our calculations are correct,
+```{r}
+Lambda <- diag(c(15, 5))
+Gamma <- matrix(c(-2*sqrt(1/5), sqrt(1/5), sqrt(1/5), 2*sqrt(1/5)), 2, 2)
+(Sigma <- Gamma %*% Lambda %*% t(Gamma))
+```
+
+### Question 1c
+```{r}
+X <- read.csv("Wheat data.txt", sep = "", header = F)
+# printing dimension
+dim(X)
+# printing wheat variety vector
+(wheat_variety <- X[, 8])
+# printing the first five rows of data matrix X
+(X <- as.matrix(X[, c(1,2,3,4,5,6,7)]))
+```
+
+### Question 1d
+```{r}
+# Calculating the unbiased sample covariance matrix
+(S <- cov(X))
+# Computing the eigenvalues and eigenvectors of S
+eigenval <- eigen(S)$values
+eigenvec <- eigen(S)$vectors
+# Constructing Lambda and Gamma
+Lambda <- diag(eigenval)
+Gamma <- as.matrix(eigenvec)
+# Computing the spectral decomposition of S
+Gamma %*% Lambda %*% t(Gamma)
+```
+As we can see from the result above, we indeed have $\Gamma \Lambda \Gamma^T = S$, where $\Lambda$ and $\Gamma$ is:
+```{r}
+Lambda
+Gamma
+```
+
+### Question 2a
+```{r}
+suppressMessages(library(ICSNP))
+data(pulmonary)
+plot(pulmonary)
+```
+\newpage
+
+### Question 2b
+```{r}
+maha_dist <- mahalanobis(x = pulmonary, center = colMeans(pulmonary), cov(pulmonary))
+normal <- qnorm(pchisq(maha_dist, 3))
+qqnorm(normal)
+qqline(normal, col = 'red')
+```
+As we can see from the plot above, the points are relatively linear and roughly fall along a straight line, we can say that the mahalanobis distance roughly follows a $\chi^2$ distribution with df = 3, therefore, we may conclude that the data might come from a multivariate normal distribution, however, due to the lack of data, further testing might be needed to confirm it.
+
+### Question 2c
+```{r}
+HotellingsT2(X = pulmonary, mu = c(0, 0, 0))
+```
+As the result above stated, the p-value is 0.05123, which is slight greater than the significance level of 0.05, hence we do not reject the null hypothesis, where the means of the three variables are all zero.
+```{r}
+# Obtain the degrees of freedom
+n <- dim(pulmonary)[1]
+p <- dim(pulmonary)[2]
+sample_mean <- matrix(colMeans(pulmonary))
+mu <- matrix(c(0, 0, 0))
+(T_2 <- n * t(sample_mean - mu) %*% solve(cov(pulmonary)) %*% (sample_mean - mu))
+```
+
+```{r}
+(F_stat <- (n - p)/((n - 1) * p) * T_2)
+```
+```{r}
+pf(F_stat, p, n - p, lower.tail = FALSE)
+```
+Using the equivalence of Hotelling's $T^2$ statistics and $F_{p, n-p}$ distribution, the p-value of the test statistic is equal to 0.05123, which is the same as the p-value calculated using the R function above. And since the p-value slight greater than the significance level of 0.05, hence we do not reject the null hypothesis, where the means of the three variables are all zero.
