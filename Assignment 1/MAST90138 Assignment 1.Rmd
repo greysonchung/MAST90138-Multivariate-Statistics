@@ -1,7 +1,6 @@
 ---
 title: "MAST90138 Assignment 1"
-author: "Haonan Zhong"
-date: '2022-07-26'
+author: "Haonan Zhong 867492"
 output: pdf_document
 ---
 
@@ -11,67 +10,70 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Question 1a
 
-For the matrix $\Sigma$ to be a covariance matrix, $\Sigma$ needs to be positive semi-definite and symmetric. In order for $\Sigma$ to be a symmetric matrix, therefore $\mathit{a}$ must be equals to 2. Since a symmetric matrix is positive semi-definite if and only if its eigenvalues $\lambda$ are non-negative, hence we need to identify values of $\mathit{b}$ that make $\Sigma$ a positive semi-definite matrix.
+For the matrix $\Sigma$ to be a covariance matrix, $\Sigma$ needs to be positive semi-definite and symmetric. In order for $\Sigma$ to be a symmetric matrix, $a$ must be equals to 2. Therefore, we have $$\Sigma=\Sigma^T= \begin{bmatrix} 1&2 \\ 2&b \\ \end{bmatrix}$$ 
 
-Given that $$ |A-\lambda{I_p}| = |\begin{bmatrix} 1&2 \\ 2&b \\ \end{bmatrix} - \begin{bmatrix} \lambda&0 \\ 0&\lambda \\ \end{bmatrix}| = |\begin{bmatrix} 1-\lambda&2 \\ 2&b-\lambda \\ \end{bmatrix}| = {\lambda^2 - (b+1)\lambda + (b-4)} = 0$$
-
-As stated above, eigenvalues of a positive semi-definite matrix are non-negative, thus, the root of the above quadratic equation must be non-negative, which results in the following two inequation.
-\begin{align}\tag{1} (b+1) - \sqrt{(b+1)^2-4\times(b-4)} \geqslant 0\\
-\tag{2} (b+1) + \sqrt{(b+1)^2-4\times(b-4)} \geqslant 0 \end{align}
-
-Solving $(1)$ we have,
-\begin{align}\begin{split} b+1 \geqslant \sqrt{(b+1)^2-4\times(b-4)} \nonumber\\
-b^2+2b+1 \geqslant b^2+2b+1-4b+16 \nonumber\\
-4b \geqslant 16 \nonumber\\
-\therefore b \geqslant 4 \nonumber\end{split}\end{align}
-
-Finally, solving $(2)$ we also have
-$$\sqrt{(b+1)^2-4\times(b-4)} \geqslant -(b+1)$$
-Since if $\sqrt{f(x)} \geqslant g(x)$, then $g(x) < 0$ or $g(x) \geqslant 0$. Thus, for $-(b+1) < 0$, we have
-$$b > -1$$
-and for $-(b+1) \geqslant 0$, we have
-$$b \leqslant -1$$
-Combining the range of $b$ in both inequation $(1)$ and $(2)$, we know that $b \geqslant 4$. Therefore, $\Sigma$ is a covariance matrix when $a=2$ and $b\geqslant 4$.
+And given that $\Sigma$ is positive semi-definite if $X^T\Sigma X \geqslant0$ for all $X$ $\neq$ 0, hence we need to identify values of $\mathit{b}$ that makes $\Sigma$ a positive semi-definite matrix.
+Let $X = \begin{bmatrix} x_1 \\ x_2 \\ \end{bmatrix}$
+$$
+\begin{aligned}
+X^T\Sigma X &= \begin{bmatrix} x_1&x_2 \\ \end{bmatrix}\begin{bmatrix} 1&2 \\ 2&b \\ \end{bmatrix}\begin{bmatrix} x_1 \\ x_2 \\ \end{bmatrix} \\
+&= x_{1}^2+4x_1x_2+bx_2^2 \\
+&= x_{1}^2+4x_1x_2+4x_2^2+bx_2^2-4x_2^2\\
+&= (x_1+2x_2)^2+(b-4)x_2^2 \geqslant0
+\end{aligned}
+$$
+From the above equation, we can see that
+$$
+\begin{aligned}
+(x_1+2x_2)^2 &\geqslant 0\\
+(b-4)x_2^2 &\geqslant 0 \\
+\therefore b\geqslant4
+\end{aligned}
+$$
+Therefore, $\Sigma$ is positive semi-definite when $b \geqslant 4$. Hence, $\Sigma$ is a covariance matrix when $a=2$ and $b \geqslant4$.
 
 ### Question 1b
-Given eigenvalues satisfy the following equation,
-$$|\Sigma-\lambda I| = |\begin{bmatrix} 13&-4 \\ -4&7 \\ \end{bmatrix} - \begin{bmatrix} \lambda&0 \\ 0&\lambda \\ \end{bmatrix}| = |\begin{bmatrix} 13-\lambda&-4 \\ -4&7-\lambda \\ \end{bmatrix}|=0$$
+To find the eigenvalues of $\Sigma$, we have
+$$det(\Sigma-\lambda I) = det(\begin{bmatrix} 13&-4 \\ -4&7 \\ \end{bmatrix} - \begin{bmatrix} \lambda&0 \\ 0&\lambda \\ \end{bmatrix}) = |\begin{bmatrix} 13-\lambda&-4 \\ -4&7-\lambda \\ \end{bmatrix}|=0$$
 Therefore, we have $(13-\lambda)(7-\lambda)-16 = 0$
 $$\therefore \lambda^2 - 20\lambda+75=0 $$
 $$(\lambda-5)(\lambda-15)=0 $$
-$$\therefore \lambda_1 = 5, \; \lambda_2 = 15$$
+$$\therefore \lambda = 5, \; \lambda = 15$$
 Thus, the eigenvalues of $\Sigma$ is 5 and 15, respectively. Next, we will compute the corresponding othonormal eigenvectors.
 
 When $\lambda = 15$,
-$$(\Sigma - 5I) \times v_1 = (\begin{bmatrix} 13&-4 \\ -4&7 \\ \end{bmatrix} - \begin{bmatrix} 15&0 \\ 0&15 \\ \end{bmatrix}) \times v_1 = 0 $$
+$$(\begin{bmatrix} 13&-4 \\ -4&7 \\ \end{bmatrix} - \begin{bmatrix} 15&0 \\ 0&15 \\ \end{bmatrix}) \times v_1 = 0 $$
 $$\begin{bmatrix} -2&-4 \\ -4&-8 \\ \end{bmatrix} \times \begin{bmatrix} v_{11} \\ v_{12} \\ \end{bmatrix} =0$$
-Given that we are finding the orthonormal eigenvectors, we solve the above equation subject to $\sqrt{v_{11}^2+v_{12}^2} = 1$. Thus, the corresponding eigenvectors of $\lambda = 5$ is,
-$$v_1 = \begin{bmatrix} -2\sqrt{\frac{1}{5}}\\ \sqrt{\frac{1}{5}} \\ \end{bmatrix} \; or \; \begin{bmatrix} 2\sqrt{\frac{1}{5}}\\ -\sqrt{\frac{1}{5}} \\ \end{bmatrix}$$
-
+$$-2v_{11}-4v_{12} = 0$$
+$$-4v_{11}-8v_{12}=0$$
+Solving the above equations we have $v_{11} = -2$ and $v_{12} = 1$, and the orthonormal eigenvector $v_1$ is,
+$$\frac{1}{\sqrt{(-2)^2+1^2}}\begin{bmatrix} -2 \\ 1 \end{bmatrix} = \begin{bmatrix} \frac{-2}{\sqrt{5}} \\ \frac{1}{\sqrt{5}} \end{bmatrix}$$
 When $\lambda = 5$,
-$$(\Sigma - 5I) \times v_2 = (\begin{bmatrix} 13&-4 \\ -4&7 \\ \end{bmatrix} - \begin{bmatrix} 5&0 \\ 0&5 \\ \end{bmatrix}) \times v_2 = 0 $$
+$$(\begin{bmatrix} 13&-4 \\ -4&7 \\ \end{bmatrix} - \begin{bmatrix} 5&0 \\ 0&5 \\ \end{bmatrix}) \times v_2 = 0 $$
 $$\begin{bmatrix} 8&-4 \\ -4&2 \\ \end{bmatrix} \times \begin{bmatrix} v_{21} \\ v_{22} \\ \end{bmatrix} =0$$
-Given that we are finding the orthonormal eigenvectors, we solve the above equation subject to $\sqrt{v_{21}^2+v_{22}^2} = 1$. Thus, the corresponding eigenvectors of $\lambda = 5$ is,
-$$v_2 = \begin{bmatrix} \sqrt{\frac{1}{5}}\\ 2\sqrt{\frac{1}{5}} \\ \end{bmatrix} \; or \; v_2 = \begin{bmatrix} -\sqrt{\frac{1}{5}}\\ -2\sqrt{\frac{1}{5}} \\ \end{bmatrix}$$
+$$8v_{21} - 4v_{22} = 0$$
+$$-4v_{21}+2v_{22}=0$$
+Solving the above equations we have $v_{21} = 1$ and $v_{22} = 2$, and the orthonormal eigenvector $v_2$ is,
+$$\frac{1}{\sqrt{1^2+2^2}}\begin{bmatrix} 1 \\ 2 \end{bmatrix} = \begin{bmatrix} \frac{1}{\sqrt{5}} \\ \frac{2}{\sqrt{5}} \end{bmatrix}$$
+Therefore, $$\Gamma = \begin{bmatrix} \frac{-2}{\sqrt{5}}&&\frac{1}{\sqrt{5}}\\ \frac{1}{\sqrt{5}}&&\frac{2}{\sqrt{5}} \\ \end{bmatrix} \;and\; \Lambda = \begin{bmatrix} 15&&0\\ 0&&5 \\ \end{bmatrix}$$
 
-Given $\Gamma$ is a matrix composes of eigenvectors of norm 1 and orthogonal to each other, and $\Lambda$ is a diagonal matrix with the corresponding eigenvalues. Therefore $$\Gamma = \begin{bmatrix} -2\sqrt{\frac{1}{5}}&&\sqrt{\frac{1}{5}}\\ \sqrt{\frac{1}{5}}&&2\sqrt{\frac{1}{5}} \\ \end{bmatrix} \;and\; \Lambda = \begin{bmatrix} 15&&0\\ 0&&5 \\ \end{bmatrix}$$
-
-Verifying that our calculations are correct,
 ```{r}
 Lambda <- diag(c(15, 5))
-Gamma <- matrix(c(-2*sqrt(1/5), sqrt(1/5), sqrt(1/5), 2*sqrt(1/5)), 2, 2)
+Gamma <- matrix(c(-2/sqrt(5), 1/sqrt(5), 1/sqrt(5), 2/sqrt(5)), 2, 2)
 (Sigma <- Gamma %*% Lambda %*% t(Gamma))
 ```
+As we can see from the R output above, our calculations are indeed correct!
 
 ### Question 1c
 ```{r}
 X <- read.csv("Wheat data.txt", sep = "", header = F)
 # printing wheat variety vector
 (wheat_variety <- X[, 8])
-# printing the data matrix X
-(X <- as.matrix(X[, -c(8)]))
+X <- as.matrix(X[, -c(8)])
 # printing the dimension of X
 dim(X)
+# printing the data matrix X
+X
 ```
 
 ### Question 1d
@@ -92,6 +94,7 @@ As we can see from the result above, we indeed have $\Gamma \Lambda \Gamma^T = S
 Lambda
 Gamma
 ```
+\newpage
 
 ### Question 2a
 ```{r}
@@ -99,6 +102,7 @@ suppressMessages(library(ICSNP))
 data(pulmonary)
 plot(pulmonary)
 ```
+As shown in scatter plot above, we can see that FVC and FEV might share a linear relationship.
 \newpage
 
 ### Question 2b
@@ -108,7 +112,7 @@ normal <- qnorm(pchisq(maha_dist, 3))
 qqnorm(normal)
 qqline(normal, col = 'red')
 ```
-As we can see from the plot above, the points are relatively linear and roughly fall along a straight line, we can say that the mahalanobis distance roughly follows a $\chi^2$ distribution with df = 3, therefore, we may conclude that the data might come from a multivariate normal distribution, however, due to the lack of data, further testing might be needed to confirm it.
+As we can see from the plot above, the points are relatively linear and roughly fall along a straight line, we can say that the mahalanobis distance roughly follows a $\chi^2$ distribution with df = 3, therefore, we may conclude that the data might come from a multivariate normal distribution.
 
 ### Question 2c
 ```{r}
