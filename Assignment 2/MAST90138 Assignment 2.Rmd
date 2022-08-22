@@ -1,7 +1,6 @@
 ---
 title: "MAST90138 Assignment 2"
 author: "Haonan Zhong"
-date: '2022-08-17'
 output: pdf_document
 ---
 
@@ -9,22 +8,41 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+### Question 1a
+```{r}
+wheat <- read.csv("Wheat data.txt", sep = "", header = F)
+X <- scale(wheat[, -c(8)], scale = FALSE)
+PCX <- prcomp(X, retx = TRUE)
+(lambda <- PCX$sdev^2)
+(gamma <- PCX$rotation)
+(fracvar <- lambda/sum(lambda))
 ```
+As we can see from the output, the first and the second principle components was able to explain about 82.9% and 16.4% of the variability of the data, respectively. And the third component explains around 0.57% of variances. Whilst, the rest of the PCs only explains a tiny portion of variances.
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+(cumuprop <- cumsum(lambda)/sum(lambda))
+screeplot(PCX, type = "line")
 ```
+Visually, one can look for an elbow in the screeplot and stop there. In our case, we should keep the first three principle components, with the first three PCs we explain almost 100% of the variability of the data.
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Question 1b
+According to the eigenvectors given in the question 1a, we have
+$$Y_{1} = -0.884X_1 - 0.395X_2 - 0.004X_3 - 0.129X_4 - 0.111X_5 + 0.127X_6 - 0.129X_7$$
+Thus, the first PC puts the most weight on the first variable $X_1$, which has an negative effect on PC1, followed by $X_2$ with a positive effect. On the other hand, $X_4$, $X_5$, $X_6$, and $X_7$ are quite similar in terms of contribution, whilst $X_3$ plays the smallest role in the construction of the first PC.
+
+$$Y_2 = 0.101X_1 +0.056X_2-0.003X_3 + 0.031X_4 + 0.002X_5 + 0.989X_6 + 0.082X_7$$
+Thus, $X_6$ plays the major role in the construction of the second PC with a positive effect, followed by $X_1$.
+
+### Question 1c
+```{r}
+PC1 <- X %*% as.matrix(gamma[,1])
+PC2 <- X %*% as.matrix(gamma[,2])
+plot(x = PC1, y = PC2, col = wheat$V8, pch=5)
+legend(-3, 4, horiz = TRUE, unique(wheat$V8), col=1:length(wheat$V8), pch=5)
+```
+Based on the scatter plot between the first two principle components, we can see that PC1 captured most of the variation driven by the different varieties of wheat, as it divides the data points into three distinct clusters, where black points indicates data point from group 1, red points indicates data point from group 2, and green points represents data point from group 3. On the other hand, no clear group separation can be seen from PC2, other than group 1 seems to have a low value of PC2 compare to the other two groups.
+
+### Question 1d
+```{r}
+
+```
