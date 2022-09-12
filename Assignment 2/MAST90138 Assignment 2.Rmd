@@ -1,6 +1,6 @@
 ---
 title: "MAST90138 Assignment 2"
-author: "Haonan Zhong"
+author: "Haonan Zhong 867492"
 output: pdf_document
 ---
 
@@ -15,13 +15,15 @@ X <- scale(wheat[, -c(8)], scale = FALSE)
 PCX <- prcomp(X, retx = TRUE)
 (lambda <- PCX$sdev^2)
 (gamma <- PCX$rotation)
+# Percentage of the variability of the data explained by each component
 (fracvar <- lambda/sum(lambda))
 ```
 As we can see from the output, the first and the second principle components was able to explain about 82.9% and 16.4% of the variability of the data, respectively. And the third component explains around 0.57% of variances. Whilst, the rest of the PCs only explains a tiny portion of variances.
 
 ```{r}
+# Cumulative sum of explained variance
 (cumuprop <- cumsum(lambda)/sum(lambda))
-screeplot(PCX, type = "line")
+screeplot(PCX, type = "line", col = "red")
 ```
 Visually, one can look for an elbow in the screeplot and stop there. In our case, we should keep the first three principle components, with the first three PCs we explain almost 100% of the variability of the data.
 
@@ -35,10 +37,10 @@ Thus, $X_6$ plays the major role in the construction of the second PC with a pos
 
 ### Question 1c
 ```{r}
-plot(x = PCX$x[,1], y = PCX$x[,2], col = wheat$V8, pch=5, xlab = 'PC1', ylab = 'PC2')
-legend(-3, 4, horiz = TRUE, unique(wheat$V8), col=1:length(wheat$V8), pch=5)
+plot(PCX$x[,1], PCX$x[,2], col =c(4, 2, 3)[wheat$V8], pch=16, xlab = 'PC1', ylab = 'PC2')
+legend(x = "bottomleft", horiz = TRUE, legend = unique(wheat$V8), col=c(4, 2, 3), pch=16)
 ```
-Based on the scatter plot between the first two principle components, we can see that PC1 captured most of the variation driven by the different varieties of wheat, as it divides the data points into three distinct clusters, where black points indicates data point from group 1, red points indicates data point from group 2, and green points represents data point from group 3. On the other hand, no clear group separation can be seen from PC2, other than group 1 seems to have a low value of PC2 compare to the other two groups.
+Based on the scatter plot between the first two principle components, we can see that PC1 captured most of the variation driven by the different varieties of wheat, as it divides the data points into three distinct clusters, where blue points indicates data point from group 1, red points indicates data point from group 2, and green points represents data point from group 3. On the other hand, no clear group separation can be seen from PC2, other than group 1 seems to have a low value of PC2 compare to the other two groups.
 
 ### Question 1d
 ```{r}
@@ -69,15 +71,15 @@ lines(x = radius * cos(theta), y = radius * sin(theta))
 ```
 As the plot above depicted, most of the variables, except for $X3$, are relatively close to the periphery of the circle, which indicates that they are strongly correlated with the first two PCs. Furthermore, PC1 is strongly negatively correlated with $X1$, $X2$, $X4$, $X5$ and $X7$. Whilst PC2 is highly positively correlated with $X6$.
 ```{r}
-plot(x = PCX$x[,1], y = PCX$x[,2], col = wheat$V8, xlab = 'PC1', ylab = 'PC2')
-legend(-3, 4, horiz = TRUE, unique(wheat$V8), col=1:length(wheat$V8), pch=1)
+plot(PCX$x[,1], PCX$x[,2], col =c(4, 2, 3)[wheat$V8], pch=16, xlab = 'PC1', ylab = 'PC2')
+legend(x = "bottomleft", horiz = TRUE, legend = unique(wheat$V8), col=c(4, 2, 3), pch=16)
 ```
 We also know that together the first two PCs explains a large portion of the variability of the data, therefore we could also use the direction of the arrow in conjunction with the scatter plot of the first two PCs to learn the effect of these variables on individuals. In particular, group 2 tends to have negative values on PC1, while group 1 tend to have a value centering around 0 and group 3 tend to have large positive values on PC1. Contrarily, group 3 tend to have slightly larger values on PC2, followed by group 2, then group 1.
 
 As we mentioned above, PC1 is strongly negatively correlated with $X1$, $X2$, $X4$, $X5$ and $X7$.Therefore, when a group has a low value of PC1, we expect it tend to go together with large values of $X1$, $X2$, $X4$, $X5$ and $X7$, and vice versa. In addition, given that PC2 is highly positively correlated with $X6$, we expect groups with large value on PC2 will also have a large value on $X6$. We can see that these are indeed the case in the scatter plot below. 
 
 ```{r}
-pairs(X, col = c(1,2,3)[wheat$V8])
+pairs(X, col = c(4,2,3)[wheat$V8], pch=16)
 ```
 
 ### Question 2a
