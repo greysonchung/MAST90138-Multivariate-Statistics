@@ -115,4 +115,4 @@ for (i in 1:4) {
   print(factanal(factors = i, covmat = Harman23.cor))
 }
 ```
-By testing the null hypothesis: $q$ is the number of factors for each allowed q, we can see that the p-value returned for $q=1$, $q=2$, $q=3$, and $q=4$ is 1.12e-116, 6.94e-11, 0.00184 and 0.0988, respectively. Among them, only $q=4$ has a p-value greater than the significance level of 0.05, hence we do not reject the null hypothesis and the factor model with $q=4$ has the best fit.
+By testing the null hypothesis: $q$ is the number of factors. For each allowed q, we can see that the p-value returned for $q=1$, $q=2$, $q=3$, and $q=4$ is 1.12e-116, 6.94e-11, 0.00184 and 0.0988, respectively. Among them, only $q=4$ has a p-value greater than the significance level of 0.05, hence we do not reject the null hypothesis and the factor model with $q=4$ has the best fit.
