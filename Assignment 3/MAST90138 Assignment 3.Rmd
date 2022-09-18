@@ -9,7 +9,42 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+### Question 1a
+```{r}
+library(MASS)
+suppressMessages(library(pls))
+XGtrain <- read.table("XGtrainRain.txt", header = TRUE, sep = ",")
+XGtest <- read.table("XGtestRain.txt", header = TRUE, sep = ",")
+```
+
+```{r}
+# Fitting the quadratic discriminant model
+# qda_model <- qda(G~., data = XGtrain)
+# Fitting the logistic regression model
+logistic <- glm(G~., data = XGtrain, family = binomial(link = "logit"))
+# summary(logistic)
+```
+When attempting to fit the quadratic discriminant model with all the $p$ predictors in the training set, an error was shown that some groups are too small for fitting, and from the summary of the logistic regression fitted with all $p$ predictors, the model is overfitted as it has zero degrees of freedom. And only 149 of the 365 explanatory variables were used to fit the model, mainly because we only have 150 instances in the training set, thus there are insufficient degrees of freedom to fit all $p$ predictors. Therefore, it is not recommended to use these two classifiers on the test set.
+
+### Question 1b
+```{r}
+# Obtain the projection matrix for PCA
+Xtrain <- scale(XGtrain[, -c(366)], scale=FALSE)
+PCX <- prcomp(Xtrain, retx = T)
+gamma <- PCX$rotation
+# Manually re-compute the PC components
+Y <- (Xtrain - matrix(rep(1,n), nrow=n) %*% colMeans(X)) %*% gamma
+all(PCX$x == Y)
+
+# Obtain the projection matrix for PLS
+PLS <- plsr(G~., data = XGtrain)
+phi <- PLS$projection
+t <- Xtrain %*% phi
+all(PLS$scores == t)
+```
+As we can see from the output above, all the manually computed components are the same as the one outputed by the R function.
+
+### Question 1c
 ```{r}
 
 ```
-
