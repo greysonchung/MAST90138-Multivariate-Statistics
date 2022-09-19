@@ -1,7 +1,6 @@
 ---
 title: "MAST90138 Assignment 3"
-author: "Haonan Zhong"
-date: '2022-09-18'
+author: "867492 Haonan Zhong"
 output: pdf_document
 ---
 
@@ -33,7 +32,7 @@ Xtrain <- scale(XGtrain[, -c(366)], scale=FALSE)
 PCX <- prcomp(Xtrain, retx = T)
 gamma <- PCX$rotation
 # Manually re-compute the PC components
-Y <- (Xtrain - matrix(rep(1,n), nrow=n) %*% colMeans(X)) %*% gamma
+Y <- (Xtrain - matrix(rep(1, nrow(Xtrain)), nrow=nrow(Xtrain)) %*% colMeans(Xtrain)) %*% gamma
 all(PCX$x == Y)
 
 # Obtain the projection matrix for PLS
@@ -46,5 +45,111 @@ As we can see from the output above, all the manually computed components are th
 
 ### Question 1c
 ```{r}
+# Train QDA with PLS components
+CV_error <- rep(0, 50)
+Gtrain <- XGtrain[, 366]
 
+for (q in 1:50) {
+  prediction <- c()
+  for (i in 1:dim(XGtrain)[1]) {
+    GDATACV <- Gtrain[-i]
+    YDATACV <- as.data.frame(PLS$scores[-i, 1:q])
+    QDA <- qda(GDATACV~., data = YDATACV)
+    
+    new_data <- as.data.frame(t(PLS$scores[i, 1:q]))
+    colnames(new_data) <- colnames(YDATACV)
+    prediction[i] <- as.numeric(predict(QDA, newdata = new_data)$class) - 1
+  }
+  CV_error[q] <- sum(prediction != Gtrain)/dim(XGtrain)[1]
+}
+
+# Plotting the cross validation error
+plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "PLS CV Error")
 ```
+
+```{r}
+which(CV_error == min(CV_error))
+min(CV_error)
+```
+As we can see from the result above, cross validation error are equal to zero and lowest when $q = 15$. Although there are numerous values for $q$ that leads to the lowest error, but in order to keep the model simple, thus, the chosen number of components for PLS should be $q=15$.
+
+```{r}
+# Train QDA with PCA components
+CV_error <- rep(0, 50)
+for (q in 1:50) {
+  prediction <- c()
+  for (i in 1:dim(XGtrain)[1]) {
+    GDATACV <- Gtrain[-i]
+    YDATACV <- as.data.frame(PCX$x[-i, 1:q])
+    QDA <- qda(GDATACV~., data = YDATACV)
+    
+    new_data <- as.data.frame(t(PCX$x[i, 1:q]))
+    colnames(new_data) <- colnames(YDATACV)
+    prediction[i] <- as.numeric(predict(QDA, newdata = new_data)$class) - 1
+  }
+  CV_error[q] <- sum(prediction != Gtrain)/dim(XGtrain)[1]
+}
+
+# Plotting the cross validation error
+plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "PCA CV Error")
+```
+
+```{r}
+which(CV_error == min(CV_error))
+min(CV_error)
+```
+As we can see from the output above, cross validation error are equal to 0.073 and lowest when $q=6$. Although there are numerous values for $q$ that leads to the lowest error, but in order to keep the model simple, thus, the chosen number of components for PCA should be $q=6$.
+
+```{r}
+# Train logistic regression model with PLS
+CV_error <- rep(0, 50)
+for (q in 1:50) {
+  prediction <- c()
+  for (i in 1:dim(XGtrain)[1]) {
+    GDATACV <- Gtrain[-i]
+    YDATACV <- as.data.frame(PLS$scores[-i, 1:q])
+    suppressWarnings(logistic <- glm(GDATACV~., data = YDATACV, family = binomial(link = "logit")))
+    
+    new_data <- as.data.frame(t(PLS$scores[i, 1:q]))
+    colnames(new_data) <- colnames(YDATACV)
+    prediction[i] <- ifelse(predict(logistic, newdata = new_data) > 0, 1, 0)
+  }
+  CV_error[q] <- sum(prediction != Gtrain)/dim(XGtrain)[1]
+}
+
+# Plotting the cross validation error
+plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "PLS CV Error")
+```
+
+```{r}
+which(CV_error == min(CV_error))
+min(CV_error)
+```
+As we can see from the result above, cross validation error are equal to zero and lowest when $q = 14$. Although there are numerous values for $q$ that leads to the lowest error, but in order to keep the model simple, thus, the chosen number of components for PLS should be $q=14$.
+
+```{r}
+# Train logistic regression model with PLS
+CV_error <- rep(0, 50)
+for (q in 1:50) {
+  prediction <- c()
+  for (i in 1:dim(XGtrain)[1]) {
+    GDATACV <- Gtrain[-i]
+    YDATACV <- as.data.frame(PCX$x[-i, 1:q])
+    suppressWarnings(logistic <- glm(GDATACV~., data = YDATACV, family = binomial(link = "logit")))
+    
+    new_data <- as.data.frame(t(PCX$x[i, 1:q]))
+    colnames(new_data) <- colnames(YDATACV)
+    prediction[i] <- ifelse(predict(logistic, newdata = new_data) > 0, 1, 0)
+  }
+  CV_error[q] <- sum(prediction != Gtrain)/dim(XGtrain)[1]
+}
+
+# Plotting the cross validation error
+plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "PLS CV Error")
+```
+
+```{r}
+which(CV_error == min(CV_error))
+min(CV_error)
+```
+As we can see from the result above, cross validation error are equal to 0.033 and lowest when $q = 4$. Thus, the chosen number of components for PLS should be $q=4$.
