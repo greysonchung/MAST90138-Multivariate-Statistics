@@ -128,7 +128,7 @@ min(CV_error)
 As we can see from the result above, cross validation error are equal to zero and lowest when $q = 14$. Although there are numerous values for $q$ that leads to the lowest error, but in order to keep the model simple, thus, the chosen number of components for PLS should be $q=14$.
 
 ```{r}
-# Train logistic regression model with PLS
+# Train logistic regression model with PCA components
 CV_error <- rep(0, 50)
 for (q in 1:50) {
   prediction <- c()
@@ -153,3 +153,56 @@ which(CV_error == min(CV_error))
 min(CV_error)
 ```
 As we can see from the result above, cross validation error are equal to 0.033 and lowest when $q = 4$. Thus, the chosen number of components for PLS should be $q=4$.
+
+### Question 1d
+Based on the results of question 1c, we can see that for both quadratic discriminant model and logistic regression model, with the optimal q, PLS tend to give the lowest cross validation error equals to 0, which is better than each of the classifiers with PCA. Therefore, we would prefer PLS version of the classifiers.
+
+### Question 1e
+```{r warning=FALSE}
+# Retrain all the classifiers with the suggested value of q and the full training set
+QDA_PLS <- qda(Gtrain~., data = as.data.frame(PLS$scores[, 1:15]))
+QDA_PCA <- qda(Gtrain~., data = as.data.frame(PCX$x[, 1:6]))
+
+logistic_PLS <- glm(Gtrain~., data = as.data.frame(PLS$scores[, 1:14]), family = binomial(link = "logit"))
+logistic_PCA <- glm(Gtrain~., data = as.data.frame(PCX$x[, 1:4]), family = binomial(link = "logit"))
+```
+
+```{r}
+# Prepare the test set
+Xtest <- XGtest[,-c(366)]
+Gtest <- XGtest[, 366]
+repbarX <- matrix(rep(colMeans(XGtrain), dim(Xtest)[1]), nrow = dim(Xtest)[1], byrow = T)
+Y_new <- as.matrix(Xtest - repbarX) %*% gamma
+
+# Report test error for quadratic discriminant with PCA components
+PCA_newdata <- as.data.frame(Y_new[, 1:6])
+prediction <- predict(QDA_PCA, newdata = PCA_newdata)$class
+QDA_PCA_ERROR <- sum(prediction != Gtest)/dim(Xtest)[1]
+paste("Test error for quadratic discriminant with PCA components is", QDA_PCA_ERROR)
+```
+
+```{r}
+# Report test error for logistic regression with PCA components
+PCA_newdata <- as.data.frame(Y_new[, 1:4])
+prediction <- ifelse(predict(logistic_PCA, newdata = PCA_newdata) > 0, 1, 0)
+LR_PCA_ERROR <- sum(prediction != Gtest)/dim(Xtest)[1]
+paste("Test error for logistic regression with PCA components is", LR_PCA_ERROR)
+```
+
+```{r}
+# Report test error for quadratic discriminant with PLS components
+t_new <- as.matrix(Xtest - repbarX) %*% phi
+PLS_newdata <- as.data.frame(t_new[, 1:15])
+prediction <- predict(QDA_PLS, newdata = PLS_newdata)$class
+QDA_PLS_ERROR <- sum(prediction != Gtest)/dim(Xtest)[1]
+paste("Test error for quadratic discriminant with PLS components is", QDA_PLS_ERROR)
+```
+
+```{r}
+# Report test error for logistic regression with PLS components
+PLS_newdata <- as.data.frame(t_new[, 1:14])
+prediction <- ifelse(predict(logistic_PLS, newdata = PLS_newdata) > 0, 1, 0)
+LR_PLS_ERROR <- sum(prediction != Gtest)/dim(Xtest)[1]
+paste("Test error for logistic regression with PLS components is", LR_PLS_ERROR)
+```
+As we can see from the test errors for the four classifiers, quadratic discriminant produces similar test error with both PCA and PLS component. Whilst logistic regression with PCA component produces a test error that's much smaller than logistic regression with PLS. And it is worth mentioning that for both quadratic discriminant and logistic regression, they tend to use less number of PCA components, while producing similar or better test error than PLS components.
