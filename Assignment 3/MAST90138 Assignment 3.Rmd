@@ -34,7 +34,9 @@ gamma <- PCX$rotation
 # Manually re-compute the PC components
 Y <- (Xtrain - matrix(rep(1, nrow(Xtrain)), nrow=nrow(Xtrain)) %*% colMeans(Xtrain)) %*% gamma
 all(PCX$x == Y)
+```
 
+```{r}
 # Obtain the projection matrix for PLS
 PLS <- plsr(G~., data = XGtrain)
 phi <- PLS$projection
@@ -64,7 +66,7 @@ for (q in 1:50) {
 }
 
 # Plotting the cross validation error
-plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "PLS CV Error")
+plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "QDA + PLS CV Error")
 ```
 
 ```{r}
@@ -91,7 +93,7 @@ for (q in 1:50) {
 }
 
 # Plotting the cross validation error
-plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "PCA CV Error")
+plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "QDA + PCA CV Error")
 ```
 
 ```{r}
@@ -118,7 +120,7 @@ for (q in 1:50) {
 }
 
 # Plotting the cross validation error
-plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "PLS CV Error")
+plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "Logistic + PLS CV Error")
 ```
 
 ```{r}
@@ -145,17 +147,17 @@ for (q in 1:50) {
 }
 
 # Plotting the cross validation error
-plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "PLS CV Error")
+plot(c(1:50), CV_error, type = "l", xlab = "Values of q", ylab = "CV Error", main = "Logistic + PCA CV Error")
 ```
 
 ```{r}
 which(CV_error == min(CV_error))
 min(CV_error)
 ```
-As we can see from the result above, cross validation error are equal to 0.033 and lowest when $q = 4$. Thus, the chosen number of components for PLS should be $q=4$.
+As we can see from the result above, cross validation error are equal to 0.033 and lowest when $q = 4$. Thus, the chosen number of components for PCA should be $q=4$.
 
 ### Question 1d
-Based on the results of question 1c, we can see that for both quadratic discriminant model and logistic regression model, with the optimal q, PLS tend to give the lowest cross validation error equals to 0, which is better than each of the classifiers with PCA. Therefore, we would prefer PLS version of the classifiers.
+Based on the results of question 1c, we can see that for both quadratic discriminant model and logistic regression model, with the optimal q, PLS tend to give the lowest cross validation error equals to 0, which is better than each of the classifiers with PCA. However, with considerations of computational cost and issue of overfitting, PCA version is preferred.
 
 ### Question 1e
 ```{r warning=FALSE}
@@ -206,3 +208,60 @@ LR_PLS_ERROR <- sum(prediction != Gtest)/dim(Xtest)[1]
 paste("Test error for logistic regression with PLS components is", LR_PLS_ERROR)
 ```
 As we can see from the test errors for the four classifiers, quadratic discriminant produces similar test error with both PCA and PLS component. Whilst logistic regression with PCA component produces a test error that's much smaller than logistic regression with PLS. And it is worth mentioning that for both quadratic discriminant and logistic regression, they tend to use less number of PCA components, while producing similar or better test error than PLS components.
+
+### Question 2a
+```{r}
+suppressMessages(library(randomForest))
+
+set.seed(90139)
+
+rainfall.rf <- randomForest(factor(G) ~., data = XGtrain, importance = TRUE)
+OOB.error <- rainfall.rf$err.rate[,1]
+plot(OOB.error, type = "l")
+abline(h = mean(OOB.error), col = 'red', xlab = "number of trees used", lty = 2)
+title("OOB error against the number of trees used")
+legend("topright", c('OOB.Error','Mean'), col=c('black','4'), lty=c(1,2), inset=.01)
+```
+
+```{r}
+which(OOB.error == OOB.error[500])
+```
+As we can see, as the number of trees increases, the random forest becomes more stable. The out-of-bag error begins to stabilize when number of trees equals to 211. Therefore, the choice of number of tree here will be 211.
+
+```{r}
+# Refit the random forest classifier using the chosen number of tree
+rainfall.rf <- randomForest(factor(G)~., data = XGtrain, importance = TRUE, ntree = 211)
+```
+
+### Question 2b
+```{r}
+varImpPlot(rainfall.rf)
+```
+As we can see from the output plots above, most of the variables/days are primarily summer days in Australia, in which may reflect the fact of the large difference of rainfall during summer in the north and south of the country.
+
+### Question 2c
+```{r}
+test_prediction <- predict(rainfall.rf, XGtest[,1:365])
+RF_ERROR <- sum(test_prediction != XGtest$G) / length(XGtest$G)
+paste("Classification error:", RF_ERROR)
+```
+
+```{r}
+# Try refitting and running the tree 10 times
+for (i in 1:10) {
+  rainfall.rf <- randomForest(factor(G)~., data = XGtrain, importance = TRUE, ntree = 211)
+  test_prediction <- predict(rainfall.rf, XGtest[,1:365])
+  RF_ERROR_1 <- sum(test_prediction != XGtest$G) / length(XGtest$G)
+  print(paste("Classification error:", RF_ERROR_1))
+}
+```
+As we can see from the output above, we don't get the same classification error every time, which is primarily due to the process of constructing the trees. Randomness was introduced each time when constructing a tree, where bootstrap samples were randomly drawn from the training set. Furthermore, $m$ features were randomly selected from $p$ features as split candidates, which may result in different trees, thus, reduces the correlation between the trees in a forest.
+
+To make random forest for stable, one may increases the number of split candidates when constructing a tree in which reduces the randomness and increases the chance of picking the same split feature. Moreover, one may select large number of trees when constructing a random forest to reduce the randomness of bootstrap sampling.
+
+### Question 3
+```{r}
+rbind(LR_PCA_ERROR, LR_PLS_ERROR, QDA_PCA_ERROR, QDA_PLS_ERROR, RF_ERROR)
+```
+As we can see from the percentage of misclassification for each of the five classifier. We can see that logistic regression with PCA produces the smallest error 2.44%, followed by random forest at 4.88%, and both QDA model shares the same error rate, while logistic regression with PLS produces the highest error rate among all at 12.20%. For logistic regression, PCA perform better than PLS might be due the samples from two class became linearly separable after applying PCA allowing logistic regression to yield better performance. Moreover, the reason that QDA did not perform well could be due to it assumes the samples comes from a normal distribution while the data is not. Lastly, the error rate of random forest tends to fluctuate a lot, which is primarily due to the randomness when training a forest.
+
